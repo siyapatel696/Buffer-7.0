@@ -1,0 +1,21 @@
+name: credless-env
+version: "1.0.0"
+entry_point: server.app:app        
+description: >
+  AI Credit Analyst — RL environment where agents evaluate loan applicants
+  using behavioural financial data. Three tasks: binary approval (easy),
+  risk tiering (medium), adaptive field inquiry (hard).
+author: anushaa-m
+license: MIT
+tags:
+  - finance
+  - credit-scoring
+  - financial-inclusion
+  - openenv
+tasks:
+  - name: binary_decision
+    difficulty: easy
+  - name: risk_tiering
+    difficulty: medium
+  - name: adaptive_inquiry
+    difficulty: hard
