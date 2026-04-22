@@ -16,6 +16,9 @@ EcoTrace is a full-stack e-waste management platform that tracks the complete li
 **No database required** — all data runs in-memory with 25+ pre-loaded sample entries.
 
 ---
+EcoTrace Demo Link
+
+https://drive.google.com/drive/folders/1fcYSb3nimZnakNTbQMUefB7UMEaPji6r
 
 ## 🏗️ Architecture
 
