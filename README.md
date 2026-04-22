@@ -1,302 +1,201 @@
-# EcoTrace — E-Waste Lifecycle Management Platform
+# EcoTrace — E-Waste Management & EPR Tracking System
 
-EcoTrace is a comprehensive full-stack system designed to streamline India's EPR (Extended Producer Responsibility) compliance for e-waste. It connects bulk consumers, collectors (PROs/aggregators), and recyclers in a transparent, efficient network.
+> End-to-end e-waste lifecycle management across 3 role-based portals, built under India's E-Waste Rules 2022.
 
-## 📋 Project Overview
-
-### Goal
-Facilitate end-to-end e-waste management with:
-- **Bulk Consumers** (M0): Submit e-waste batches, track EPR credits
-- **Collectors** (M1-M2): Pick up batches, manage capacity, assign to recyclers
-- **Recyclers** (M2-M3): Process e-waste, issue EPR certificates, track impact
-
-### Tech Stack
-- **Backend**: FastAPI (Python) + MySQL
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Algorithms**: 11 DSA implementations for optimization
+![EcoTrace](https://img.shields.io/badge/EcoTrace-v2.0-22c55e?style=for-the-badge)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
+![No DB](https://img.shields.io/badge/Database-None%20Required-orange?style=for-the-badge)
 
 ---
 
-## 🏗️ Project Structure
+## 🌿 What is EcoTrace?
+
+EcoTrace is a full-stack e-waste management platform that tracks the complete lifecycle of electronic waste — from bulk consumer registration and device triage, through collector matching and pickup, to CPCB-certified recycling and EPR certificate issuance.
+
+**No database required** — all data runs in-memory with 25+ pre-loaded sample entries.
+
+---
+
+## 🏗️ Architecture
 
 ```
-ecotrace/
-├── frontend/                 # React Vite app
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── bulk-consumer/     # Portal 1: Org registration, batch submission
-│   │   │   ├── collector/         # Portal 2A: Batch assignment, collection
-│   │   │   └── recycler/          # Portal 2B: Processing, certification
-│   │   ├── pages/
-│   │   ├── utils/                 # API client, helpers
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
-│
-├── backend/                  # FastAPI Python
-│   ├── dsa/                  # Data Structure & Algorithm implementations
-│   │   ├── trie.py           # Device name autocomplete
-│   │   ├── kd_tree.py        # Nearest collector/recycler search
-│   │   ├── decision_tree.py  # Device triage (refurbishable/recyclable/hazardous)
-│   │   ├── bst.py            # EPR credit range queries
-│   │   ├── max_heap.py       # Batch priority queue
-│   │   ├── greedy.py         # Batch-to-collector assignment
-│   │   ├── bfs.py            # Shortest path through network
-│   │   ├── sliding_window.py # Time-series trend analysis
-│   │   ├── hungarian.py      # Optimal assignment (cost minimization)
-│   │   ├── max_flow.py       # Capacity planning
-│   │   └── kmeans.py         # Geographic clustering
+EcoTrace/
+├── backend/                  ← FastAPI Python backend (no DB)
+│   ├── main.py               ← App entry point
+│   ├── data/
+│   │   └── sample_data.py    ← In-memory data store (25+ entries)
 │   ├── routes/
-│   │   ├── bulk_consumer.py  # Org registration, batch creation
-│   │   ├── collector.py      # Batch assignment, collection
-│   │   └── recycler.py       # Processing, certification
-│   ├── models/
-│   │   ├── user.py
-│   │   ├── batch.py
-│   │   └── certificate.py
-│   ├── db/
-│   │   └── connection.py     # MySQL connection pool
-│   ├── main.py               # FastAPI app setup
-│   ├── requirements.txt
-│   └── .env                  # Database credentials
+│   │   ├── bulk_consumer.py  ← Portal 1 API routes
+│   │   ├── collector.py      ← Portal 2A API routes
+│   │   ├── recycler.py       ← Portal 2B API routes
+│   │   └── data_routes.py    ← Dashboard / global data routes
+│   └── dsa/                  ← All 6 DSA implementations
+│       ├── bst.py            ← BST (EPR credit range queries)
+│       ├── kd_tree.py        ← KD-Tree (geographic proximity)
+│       ├── trie.py           ← Trie (certificate UID search)
+│       ├── greedy.py         ← Greedy (collector assignment)
+│       ├── decision_tree.py  ← Decision Tree (device triage)
+│       └── kd_tree.py        ← KD-Tree (spatial batch lookup)
 │
-├── database/
-│   └── schema.sql            # Full schema with all tables
-│
-└── README.md
+└── frontend/                 ← React + Vite frontend
+    └── src/
+        ├── pages/
+        │   ├── HomePage.jsx            ← Landing page
+        │   ├── BulkConsumerPortal.jsx  ← Portal 1 (4 modules)
+        │   ├── CollectorPortal.jsx     ← Portal 2A (4 modules)
+        │   └── RecyclerPortal.jsx      ← Portal 2B (4 modules)
+        ├── components/
+        │   ├── Navbar.jsx              ← Sticky glassmorphism nav
+        │   ├── PipelineBar.jsx         ← 4-module progress bar
+        │   └── EnvImpactCounter.jsx    ← Live animated impact strip
+        └── utils/api.js                ← All API calls
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (2 terminals)
 
-### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- MySQL 5.7+
-- Git
-
-### 1. Database Setup
-
-```bash
-# In MySQL terminal:
-mysql -u root -p ecotrace < database/schema.sql
-```
-
-### 2. Backend Setup
-
+### Terminal 1 — Backend
 ```bash
 cd backend
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
-
 pip install -r requirements.txt
-
-# Update .env with your MySQL credentials
-# Then start the server:
-uvicorn main:app --reload
-# Running at http://localhost:8000
+python -m uvicorn main:app --reload --port 8000
 ```
+API runs at → **http://localhost:8000**  
+Interactive docs → **http://localhost:8000/docs**
 
-### 3. Frontend Setup
-
+### Terminal 2 — Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
-# Running at http://localhost:5173
 ```
+App runs at → **http://localhost:5173**
 
 ---
 
-## 📊 Database Schema Overview
+## 🎯 The 4-Module Pipeline (All Portals)
 
-### Core Tables
+Every batch travels through 4 stages visible at the top of each portal:
 
-| Table | Purpose |
-|-------|---------|
-| `organisations` | Bulk consumers (companies, hospitals, colleges) |
-| `collectors` | PROs/aggregators who pick up e-waste |
-| `recyclers` | Facilities that process e-waste |
-| `devices` | Master list of e-waste device types & properties |
-| `batches` | Collections of e-waste from an organisation |
-| `certificates` | EPR certificates issued after recycling |
-| `impact_log` | City-level environmental impact metrics |
+| Module | Name | DSA Used |
+|--------|------|----------|
+| 0 | Registry & Visibility | — |
+| 1 | Device Triage / Batch Feed | Decision Tree, KD-Tree |
+| 2 | Collector Matching / Drive Planner / Network View | Greedy, KD-Tree |
+| 3 | EPR Dashboard / Certificate Chain / Issuance | BST, Trie |
 
 ---
 
-## 🧠 DSA Usage Map
+## 🏢 Portal 1 — Bulk Consumer
 
-| Algorithm | Use Case | File |
-|-----------|----------|------|
-| **Trie** | Device name autocomplete in batch forms | `dsa/trie.py` |
-| **K-D Tree** | Find nearest collectors/recyclers by GPS | `dsa/kd_tree.py` |
-| **Decision Tree** | Auto-classify devices (refurbish/recycle/hazard) | `dsa/decision_tree.py` |
-| **Binary Search Tree** | Query EPR credits by date range | `dsa/bst.py` |
-| **Max Heap** | Priority queue of batches (weight-based) | `dsa/max_heap.py` |
-| **Greedy** | Assign batches to collectors (minimize distance) | `dsa/greedy.py` |
-| **BFS** | Find shortest network path batch→collector→recycler | `dsa/bfs.py` |
-| **Sliding Window** | Moving averages of kg diverted, EPR credits | `dsa/sliding_window.py` |
-| **Hungarian** | Optimal batch-to-facility assignment (cost) | `dsa/hungarian.py` |
-| **Max Flow** | Verify all batches can be processed (capacity) | `dsa/max_flow.py` |
-| **K-Means** | Geographic clustering of facilities | `dsa/kmeans.py` |
+**Who:** IT companies, hospitals, colleges, RWAs, co-working spaces
+
+| Module | Feature |
+|--------|---------|
+| 0 · Registry | Register organisation, view all registered entities |
+| 1 · Device Triage | Add devices by type & quantity → Decision Tree classifies each |
+| 2 · Collector Matching | Greedy algorithm scores collectors by capacity × proximity × rating |
+| 3 · EPR Dashboard | Compliance ring, BST-sorted certificate list, CO₂ impact |
 
 ---
 
-## 🔄 Feature Rollout Plan
+## 🚛 Portal 2A — Collector (PRO / Aggregator)
 
-### **M0: MVP (This Sprint)**
-- ✅ Backend: Organisation registration, batch creation
-- ✅ Frontend: Registration form + batch form UI
-- ✅ DSA: Trie (device autocomplete)
-- Database: Schema loaded
+**Who:** PROs, registered aggregators, formal scrap dealers with CPCB registration
 
-### **M1: Collector Portal (Next Sprint)**
-- Collector registration
-- Available batch list with K-D Tree search
-- Batch assignment (Greedy + Hungarian)
-- Pickup confirmation
-
-### **M2: Recycler Portal**
-- Recycler registration
-- Batch intake & processing
-- Decision Tree for device triage
-- Certificate generation
-
-### **M3: Analytics Dashboard**
-- Sliding Window for trend analysis
-- BST for EPR credit queries
-- K-Means for geographic insights
-- Environmental impact metrics
-
-### **M4: Integration & Polish**
-- Batch tracking across full lifecycle
-- Real-time notifications
-- Compliance reports for government
+| Module | Feature |
+|--------|---------|
+| 0 · Registry | Register with CPCB number, capacity gauge |
+| 1 · Incoming Batch Feed | KD-Tree spatial proximity lookup of pending batches |
+| 2 · Drive Planner | Greedy Nearest-Neighbour route optimisation |
+| 3 · Certificate Chain | View handover history & all issued EPR certificates |
 
 ---
 
-## 📡 API Endpoints
+## ♻️ Portal 2B — Recycler
 
-### Bulk Consumer
-- `POST /api/bulk-consumer/register` — Register organisation
-- `POST /api/bulk-consumer/batch/create` — Submit e-waste batch
-- `GET /api/bulk-consumer/org/{org_id}/batches` — View all batches
-- `GET /api/bulk-consumer/batch/{batch_id}` — Batch details
+**Who:** CPCB-certified recyclers — Attero, Ecoreco, Karo Sambhav, E-Parisaraa, TES-AMM
 
-### Collector
-- `POST /api/collector/register` — Register collector
-- `GET /api/collector/available/{city}` — Available collectors in city
-- `PATCH /api/collector/batch/{batch_id}/assign` — Assign batch to collector
-- `PATCH /api/collector/batch/{batch_id}/collect` — Confirm pickup
-
-### Recycler
-- `POST /api/recycler/register` — Register recycler
-- `PATCH /api/recycler/batch/{batch_id}/receive` — Mark batch received
-- `POST /api/recycler/certificate/issue` — Issue EPR certificate
-- `GET /api/recycler/certificate/{cert_id}` — Certificate details
+| Module | Feature |
+|--------|---------|
+| 0 · Registry | Register facility, view recovery rates & capacity |
+| 1 · Incoming Batches | Confirm receipt of collected batches |
+| 2 · Network View | Full collector → recycler graph (nodes + edges) |
+| 3 · Certificate Issuance | Issue EPR certificates + Trie prefix UID search |
 
 ---
 
-## 🔑 Key Design Decisions
+## 🧠 DSA Map — All Load-Bearing
 
-1. **MySQL over PostgreSQL**: Simplicity + familiarity. JSON columns for flexibility.
-2. **FastAPI**: Modern Python web framework, auto OpenAPI docs.
-3. **React + Vite**: Fast dev loop, Tailwind for rapid UI.
-4. **11 DSA Implementations**: Educational + production-ready optimizations.
-5. **Separate Portals**: Clear separation of concerns (bulk consumer vs. collector vs. recycler).
-
----
-
-## 🛠️ Development Workflow
-
-### Git Branches
-```bash
-# Create feature branch
-git checkout -b feature/bulk-consumer-portal
-
-# Commit regularly
-git add .
-git commit -m "feat: add organisation registration"
-
-# Push to origin
-git push origin feature/bulk-consumer-portal
-
-# Create PR, review, merge to main
-```
-
-### Running Tests
-```bash
-# Backend
-cd backend
-pytest
-
-# Frontend
-cd frontend
-npm run test
-```
+| DSA Concept | Where Used | Complexity |
+|-------------|-----------|------------|
+| **Binary Search Tree** | EPR credit range queries on sorted certificate values | O(log n) |
+| **KD-Tree** | Geographic spatial lookup of nearest collectors/batches | O(log n) avg |
+| **Trie** | O(m) prefix search across certificate UIDs | O(m) |
+| **Greedy Algorithm** | Batch-to-collector assignment & drive route planning | O(n) / O(n²) |
+| **Decision Tree** | Device triage classification (refurbishable/recyclable/hazardous) | O(depth) |
+| **Graph (Network View)** | Collector → Recycler edge mapping | O(V+E) |
 
 ---
 
-## 📝 Notes for Team
+## 📦 Sample Data (No DB Required)
 
-1. **Database Credentials**: Update `.env` in backend with your MySQL password before first run.
-2. **Frontend API URL**: Configured in `frontend/vite.config.js` to proxy `/api` calls to `http://localhost:8000`.
-3. **Device Master List**: Must be seeded with real e-waste device data (weight, material composition, hazard tier).
-4. **Location Data**: For production, integrate with Google Maps API for real lat/lng.
+Pre-loaded in `backend/data/sample_data.py`:
 
----
-
-## 📞 Contact & Support
-
-- **Architecture Questions**: Review `preface.md` for design rationale.
-- **API Issues**: Check FastAPI docs at `http://localhost:8000/docs` (auto-generated).
-- **Frontend Build Errors**: Clear node_modules and reinstall: `rm -rf node_modules && npm install`.
+| Entity | Count |
+|--------|-------|
+| Device types | 12 |
+| Organisations | 8 |
+| Collectors | 6 |
+| Recyclers | 5 |
+| Batches (all statuses) | 10 |
+| EPR Certificates | 6 |
 
 ---
 
-## 🎯 Success Metrics
+## 🌍 Environmental Impact Tracked
 
-- ✅ All 3 portals functional and integrated
-- ✅ 11 DSA algorithms properly implemented & tested
-- ✅ Database queries optimized (< 200ms for most operations)
-- ✅ Full e2e flow: Batch registration → Collector pickup → Recycler processing → Certificate
-- ✅ Beautiful, responsive UI (mobile-first design)
+Every portal shows a live animated counter:
+- ⚖️ Total e-waste weight processed
+- 🌿 CO₂ avoided (kg)
+- 🔩 Copper recovered (kg)
+- 🥇 Gold recovered (g)
+- 📜 EPR certificates issued
 
 ---
 
-**Built with ❤️ for sustainable e-waste management in India.**
+## 🛠️ Tech Stack
 
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite 4, React Router (HashRouter) |
+| Styling | Pure CSS (no Tailwind), Google Fonts Inter |
+| Charts | Chart.js + react-chartjs-2 |
+| Backend | FastAPI 0.104, Python 3.13, Uvicorn |
+| Data | In-memory Python dicts (no MySQL) |
+| DSA | Pure Python implementations |
 
-##  Techstack
-- Frontend: React (Vite + Tailwind)
-- Backend: FastAPI (Python)
-- Database: MySQL
-- Algorithms: Custom DSA implementations
+---
 
-##  Project Structure
-EcoTrace/
-├── frontend/
-├── backend/
-├── database/
+## 📋 API Endpoints
 
+| Portal | Endpoint | Description |
+|--------|---------|-------------|
+| Data | `GET /api/data/dashboard` | Global impact stats |
+| Bulk Consumer | `POST /api/bulk-consumer/register` | Register organisation |
+| Bulk Consumer | `POST /api/bulk-consumer/batch/create` | Create + triage batch |
+| Bulk Consumer | `GET /api/bulk-consumer/match-collectors/{org_id}` | Greedy collector match |
+| Bulk Consumer | `GET /api/bulk-consumer/epr-dashboard/{org_id}` | BST EPR stats |
+| Collector | `GET /api/collector/{id}/feed` | KD-Tree batch feed |
+| Collector | `GET /api/collector/{id}/drive-plan` | Greedy route plan |
+| Recycler | `GET /api/recycler/network/overview` | Network graph |
+| Recycler | `POST /api/recycler/certificate/issue` | Issue certificate |
+| Recycler | `GET /api/recycler/certificate/search/{prefix}` | Trie UID search |
 
-## ⚙️ Setup (Planned)
-```bash
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload
-📌 Status
+Full interactive docs: **http://localhost:8000/docs**
 
-🚧 Currently in development — architecture and system design completed.
+---
 
-👩‍💻 Author
-
- Anjalieee
-
-
+*EcoTrace v2.0 — Built for India's 598 CPCB-certified recyclers and EPR-obligated producers*

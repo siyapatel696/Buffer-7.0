@@ -65,3 +65,19 @@ class DecisionTree:
 # tree.build_simple_tree()
 # device = {"age_years": 2, "weight_kg": 2, "category": "phone"}
 # classification = tree.classify(device)  # Returns "refurbishable"
+
+
+class DeviceTriageDecisionTree:
+    """
+    Category-based triage wrapper for use in bulk_consumer route.
+    Classifies devices by category string into disposal pathways.
+    """
+    CATEGORY_MAP = {
+        "IT Equipment":        "refurbishable / recyclable",
+        "Batteries":           "hazardous — separate disposal required",
+        "Consumer Electronics":"recyclable",
+        "Large Appliances":    "hazardous — LCEEW category",
+    }
+
+    def classify(self, category: str) -> str:
+        return self.CATEGORY_MAP.get(category, "recyclable")
